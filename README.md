@@ -73,7 +73,7 @@ Follow these instructions to get the project up and running on your local machin
 
 3.  **Install dependencies:**
     ```bash
-    pip install -r requirements.txt
+    uv sync
     ```
 
 4.  **Set up environment variables:**
