@@ -1,4 +1,4 @@
-# MyJournal API
+# Penfolio API
 
 A secure, feature-rich backend API for a personal journaling application. Built with **Django** and **Django Ninja**, it provides a robust set of endpoints for creating, managing, and securing journal entries.
 
