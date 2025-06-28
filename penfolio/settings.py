@@ -52,13 +52,6 @@ LOGGING = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    'https://penfolio-ui.vercel.app'
-    '*://*.onrender.com',
-    'https://penfolio-api.onrender.com',
-]
 
 # (optional) if you need to send cookies or auth headers
 CORS_ALLOW_CREDENTIALS = True
