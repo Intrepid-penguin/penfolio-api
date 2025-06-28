@@ -59,6 +59,15 @@ LOGGING = {
 #     "https://penfolio-ui.vercel.app/",
 # ]
 
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
+
 
 # (optional) if you need to send cookies or auth headers
 CORS_ALLOW_CREDENTIALS = True
