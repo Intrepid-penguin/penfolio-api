@@ -6,5 +6,6 @@
     "--load-plugins",
     "pylint_django",
     "--django-settings-module=penfolio.settings"
-  ]
+  ],
+  "pylint.enabled": false
 }

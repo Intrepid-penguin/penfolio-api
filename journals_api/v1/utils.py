@@ -1,7 +1,4 @@
-# your_project/pagination.py
-
 from typing import Any, Optional, Dict
-from ninja.conf import settings
 from django.db.models import QuerySet
 from ninja import Schema
 from ninja.pagination import PaginationBase
