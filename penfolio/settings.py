@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-%x800z%#uovie0nmr7y1mdw)dabadif=(9#m9*d8*-zdz(fm22
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", 'onrender.com', 'penfolio-api.onrender.com']
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", 'onrender.com', 'penfolio-api.onrender.com', 'penfolio-ui.vercel.app']
 
 NINJA_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1005),
@@ -54,7 +54,8 @@ LOGGING = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    'https://penfolio-ui.vercel.app'
 ]
 
 # (optional) if you need to send cookies or auth headers
