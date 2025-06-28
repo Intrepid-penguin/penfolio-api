@@ -10,6 +10,7 @@ dependencies = [
     "django-cors-headers>=4.7.0",
     "django-ninja-jwt>=5.3.7",
     "django-ninja[jwt]>=1.4.3",
+    "gunicorn>=23.0.0",
     "pydantic[email]>=2.11.7",
     "pylint-django>=2.6.1",
     "python-decouple>=3.8",
