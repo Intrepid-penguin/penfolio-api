@@ -23,7 +23,7 @@ from journals_api.v1.user_api import router as users_router
 api = NinjaAPI(title="MyJournal API")
 
 api.add_router("/journals/", journals_router, tags=["Journals"])
-api.add_router("/users/", users_router, tags=["Users & Auth"])
+api.add_router("/auth/", users_router, tags=["Users & Auth"])
 
 urlpatterns = [
     path("admin/", admin.site.urls),

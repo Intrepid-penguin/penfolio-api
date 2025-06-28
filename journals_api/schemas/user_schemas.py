@@ -3,6 +3,7 @@ from datetime import date
 from typing import Optional
 
 from ninja import Schema
+from pydantic import EmailStr, field_validator
 
 class DjangoUserSchema(Schema):
     """
@@ -26,8 +27,30 @@ class RegisterSchema(Schema):
     Schema for user registration.
     """
     username: str
-    email: str
+    email: EmailStr
     password: str
+    
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, password: str) -> str:
+        """Validate password security requirements."""
+        
+        if len(password) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        
+        if not any(c.isupper() for c in password):
+            raise ValueError("Password must contain at least one uppercase letter")
+        
+        if not any(c.islower() for c in password):
+            raise ValueError("Password must contain at least one lowercase letter")
+        
+        if not any(c.isdigit() for c in password):
+            raise ValueError("Password must contain at least one digit")
+        
+        if not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
+            raise ValueError("Password must contain at least one special character")
+        
+        return password
 
 class LoginSchema(Schema):
     """

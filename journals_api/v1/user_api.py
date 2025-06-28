@@ -1,4 +1,7 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.db import IntegrityError, transaction
+from django.db.models import Q
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
@@ -6,51 +9,53 @@ from ninja_jwt.tokens import RefreshToken
 
 from ..models.user_model import UserProfile
 from ..schemas.user_schemas import (LoginSchema,
-                                    PinSchema, RefreshSchema, 
-                                    RegisterSchema, 
+                                    PinSchema, RefreshSchema,
+                                    RegisterSchema, UserProfileSchema,
                                     UserSchema)
 
-# from .utils import send_verification_email, send_password_reset_email # You'll need to create these email utilities
 
 router = Router()
 
 @router.post("/register", response=UserSchema)
 def register(request, payload: RegisterSchema):
     """Register a new user with username, email and password."""
-    username_exists = User.objects.filter(
-        username=payload.username
-    ).exists()
-    email_exists = User.objects.filter(
-        email=payload.email
-    ).exists()
-    
-    if username_exists or email_exists:
+    if User.objects.filter(Q(username=payload.username) | Q(email=payload.email)).exists():
         raise HttpError(400, "Username or email already exists.")
-    
-    user = User.objects.create_user(
-        username=payload.username,
-        email=payload.email,
-        password=payload.password,
-        is_active=True # Deactivate until email is verified
-    )
-    # Create UserProfile only if it doesn't exist
-    profile, created = UserProfile.objects.get_or_create(user=user)  # type: ignore
 
-    # send_verification_email(user) # Send an email with a token
+    try:
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username=payload.username,
+                email=payload.email,
+                password=payload.password,
+                is_active=True
+            )
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+    except IntegrityError as exc:
+        raise HttpError(400, "Username or email already exists.") from exc
+
     return {"id": user.id, "username": user.username, "email": user.email, "profile": profile}
 
 @router.post("/login")
 def login(request, payload: LoginSchema):
     """Authenticate user and return JWT tokens."""
-    try:
-        user = User.objects.get(username=payload.username)
-        if not user.check_password(payload.password):
-            raise HttpError(401, "Invalid credentials")
-    except User.DoesNotExist:
-        raise HttpError(401, "Invalid credentials")
+    # Use Django's standard authentication method
+    user = authenticate(username=payload.username, password=payload.password)
+
+    if user is None:
+        # This handles incorrect credentials or inactive users
+        raise HttpError(401, "Invalid credentials or user not active.")
 
     refresh = RefreshToken.for_user(user)
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    user_data = {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "profile": UserProfileSchema.from_orm(profile)
+    }
     return {
+        "user": user_data,
         "refresh": str(refresh),
         "access": str(refresh.access_token),
     }
@@ -59,22 +64,20 @@ def login(request, payload: LoginSchema):
 def token_refresh(request, payload: RefreshSchema):
     """Get a new access and refresh token (token rotation)."""
     try:
-      refresh = RefreshToken(payload.refresh)
-      user_id = refresh.payload["user_id"]
-      user = User.objects.get(id=user_id)
-      new_refresh_token = RefreshToken.for_user(user)
+        refresh = RefreshToken(payload.refresh)
+        refresh.blacklist()
+        user_id = refresh.payload["user_id"]
+        user = User.objects.get(id=user_id)
+        new_refresh_token = RefreshToken.for_user(user)
 
-      # Blacklist the used refresh token.
-      # Requires 'rest_framework_simplejwt.token_blacklist' in INSTALLED_APPS.
-      refresh.blacklist()
-
-      return {
-        "refresh": str(new_refresh_token),
-        "access": str(new_refresh_token.access_token),
-      }
-    except Exception:
-      # Catches TokenError, User.DoesNotExist, and errors from blacklist()
-        raise HttpError(401, "Invalid or expired refresh token")
+        return {
+            "refresh": str(new_refresh_token),
+            "access": str(new_refresh_token.access_token),
+        }
+    
+    except User.DoesNotExist:
+        # This case is unlikely if the token is valid but is good for robustness.
+        raise HttpError(401, "User associated with this token not found.")
 
 
 
@@ -82,7 +85,7 @@ def token_refresh(request, payload: RefreshSchema):
 def get_profile(request):
     """Get the authenticated user's profile."""
     user = request.auth
-    profile, created = UserProfile.objects.get_or_create(user=user)
+    profile, _ = UserProfile.objects.get_or_create(user=user)
     return {"id": user.id, "username": user.username, "email": user.email, "profile": profile}
 
 @router.post("/profile/set-pin", auth=JWTAuth())

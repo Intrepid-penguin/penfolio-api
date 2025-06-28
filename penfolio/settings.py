@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-%x800z%#uovie0nmr7y1mdw)dabadif=(9#m9*d8*-zdz(fm22
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 NINJA_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1005),
@@ -35,6 +35,30 @@ NINJA_JWT = {
     'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': False,
 }
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "null": {
+            "class": "logging.NullHandler",
+        },
+    },
+    "loggers": {
+        "django.security.DisallowedHost": {
+            "handlers": ["null"],
+            "propagate": False,
+        },
+    },
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+# (optional) if you need to send cookies or auth headers
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
@@ -49,10 +73,13 @@ INSTALLED_APPS = [
     'ninja',
     'ninja_jwt',
     'ninja_jwt.token_blacklist',
+    "corsheaders",
     'journals_api',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

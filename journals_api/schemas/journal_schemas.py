@@ -1,7 +1,19 @@
-from ninja import Schema
 from datetime import datetime
-from typing import Optional
 from enum import Enum
+from typing import Generic, List, Optional, TypeVar
+
+from ninja import Schema
+
+# This creates a generic Type Variable. It can be any type.
+T = TypeVar('T')
+
+class PaginatedResponse(Schema, Generic[T]):
+    """
+    A generic schema for paginated data.
+    Describes the inner 'data' object in your response.
+    """
+    items: List[T]
+    count: int
 
 # === Input Schemas ===
 class JournalCreateSchema(Schema):
