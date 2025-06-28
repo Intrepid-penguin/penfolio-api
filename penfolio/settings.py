@@ -29,35 +29,19 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", 'onrender.com', 'penfolio-api.onrender.com']
 
 NINJA_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1005),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': False,
 }
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "null": {
-            "class": "logging.NullHandler",
-        },
-    },
-    "loggers": {
-        "django.security.DisallowedHost": {
-            "handlers": ["null"],
-            "propagate": False,
-        },
-    },
-}
 
-
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-#     "https://penfolio-ui.vercel.app/",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://penfolio-ui.vercel.app/",
+]
 
 CORS_ALLOW_HEADERS = (
     "accept",
@@ -71,7 +55,7 @@ CORS_ALLOW_HEADERS = (
 
 # (optional) if you need to send cookies or auth headers
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition
