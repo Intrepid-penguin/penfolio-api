@@ -18,10 +18,12 @@ from django.contrib import admin
 from django.urls import path
 from ninja import NinjaAPI
 from journals_api.v1.journal_api import router as journals_router
+from journals_api.v1.base import router as base_router
 from journals_api.v1.user_api import router as users_router
 
 api = NinjaAPI(title="MyJournal API")
 
+api.add_router("/", base_router, tags=["Home"])
 api.add_router("/journals/", journals_router, tags=["Journals"])
 api.add_router("/auth/", users_router, tags=["Users & Auth"])
 
